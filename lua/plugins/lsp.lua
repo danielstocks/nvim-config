@@ -15,6 +15,20 @@ return {
     config = function(_, opts)
       require("mason-lspconfig").setup(opts)
 
+      local function find_local_bin(bufnr, bin)
+        local filename = vim.api.nvim_buf_get_name(bufnr)
+        if filename == "" then
+          return nil
+        end
+
+        return vim.fs.find("node_modules/.bin/" .. bin, {
+          path = vim.fs.dirname(filename),
+          upward = true,
+          type = "file",
+          limit = 1,
+        })[1]
+      end
+
       local function jump_to_mouse_definition()
         local pos = vim.fn.getmousepos()
 
@@ -65,7 +79,36 @@ return {
         },
       })
 
+      vim.lsp.config("oxlint", {
+        cmd = function(dispatchers, config)
+          local local_cmd = config and config.root_dir
+            and vim.fs.find("node_modules/.bin/oxlint", {
+              path = config.root_dir,
+              upward = true,
+              type = "file",
+              limit = 1,
+            })[1]
+
+          if not local_cmd then
+            return nil
+          end
+
+          return vim.lsp.rpc.start({ local_cmd, "--lsp" }, dispatchers)
+        end,
+        root_dir = function(bufnr, on_dir)
+          if not find_local_bin(bufnr, "oxlint") then
+            return
+          end
+
+          local root = vim.fs.root(bufnr, { ".oxlintrc.json", ".oxlintrc.jsonc", "oxlint.config.ts" })
+          if root then
+            on_dir(root)
+          end
+        end,
+      })
+
       vim.lsp.enable("vtsls")
+      vim.lsp.enable("oxlint")
     end,
   },
 }
