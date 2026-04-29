@@ -10,7 +10,7 @@ return {
       "neovim/nvim-lspconfig",
     },
     opts = {
-      ensure_installed = { "vtsls" },
+      ensure_installed = { "vtsls", "rescriptls" },
     },
     config = function(_, opts)
       require("mason-lspconfig").setup(opts)
@@ -79,6 +79,16 @@ return {
         },
       })
 
+      vim.lsp.config("rescriptls", {
+        capabilities = {
+          workspace = {
+            didChangeWatchedFiles = {
+              dynamicRegistration = true,
+            },
+          },
+        },
+      })
+
       vim.lsp.config("oxlint", {
         cmd = function(dispatchers, config)
           local local_cmd = config and config.root_dir
@@ -108,6 +118,7 @@ return {
       })
 
       vim.lsp.enable("vtsls")
+      vim.lsp.enable("rescriptls")
       vim.lsp.enable("oxlint")
     end,
   },

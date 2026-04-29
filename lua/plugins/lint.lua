@@ -44,28 +44,39 @@ return {
         })[1] ~= nil
       end
 
+      local function find_local_binary(start, binary)
+        return vim.fs.find("node_modules/.bin/" .. binary, {
+          upward = true,
+          path = start,
+          type = "file",
+          limit = 1,
+        })[1]
+      end
+
       local function pick_eslint(bufnr)
         local filename = vim.api.nvim_buf_get_name(bufnr)
         local start = filename ~= "" and vim.fs.dirname(filename) or vim.loop.cwd()
 
         if start and start ~= "" then
-          local local_eslint_d = vim.fs.find("node_modules/.bin/eslint_d", {
-            upward = true,
-            path = start,
-            type = "file",
-          })[1]
+          local local_eslint_d = find_local_binary(start, "eslint_d")
           if local_eslint_d then
-            return "eslint_d"
+            return { name = "eslint_d", cmd = local_eslint_d }
           end
 
-          local local_eslint = vim.fs.find("node_modules/.bin/eslint", {
-            upward = true,
-            path = start,
-            type = "file",
-          })[1]
+          local local_eslint = find_local_binary(start, "eslint")
           if local_eslint then
-            return "eslint"
+            return { name = "eslint", cmd = local_eslint }
           end
+        end
+
+        local global_eslint_d = vim.fn.exepath("eslint_d")
+        if global_eslint_d ~= "" then
+          return { name = "eslint_d", cmd = global_eslint_d }
+        end
+
+        local global_eslint = vim.fn.exepath("eslint")
+        if global_eslint ~= "" then
+          return { name = "eslint", cmd = global_eslint }
         end
 
         return nil
@@ -86,7 +97,8 @@ return {
           return
         end
 
-        lint.try_lint(linter)
+        lint.linters[linter.name].cmd = linter.cmd
+        lint.try_lint(linter.name)
       end
 
       vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {

@@ -6,20 +6,24 @@ return {
     opts = function()
       local util = require("conform.util")
 
+      local function find_local_node_bin(start, bin)
+        if start and start ~= "" then
+          return vim.fs.find("node_modules/.bin/" .. bin, {
+            upward = true,
+            path = start,
+            type = "file",
+            limit = 1,
+          })[1]
+        end
+      end
+
       local function local_oxfmt(_, ctx)
         local bufname = ctx.filename or vim.api.nvim_buf_get_name(ctx.buf)
         local start = vim.fs.dirname(bufname)
 
-        if start and start ~= "" then
-          local local_bin = vim.fs.find("node_modules/.bin/oxfmt", {
-            upward = true,
-            path = start,
-            type = "file",
-          })[1]
-
-          if local_bin then
-            return local_bin
-          end
+        local local_bin = find_local_node_bin(start, "oxfmt")
+        if local_bin then
+          return local_bin
         end
 
         local global_bin = vim.fn.exepath("oxfmt")
@@ -28,6 +32,23 @@ return {
         end
 
         return "oxfmt"
+      end
+
+      local function local_rescript(_, ctx)
+        local bufname = ctx.filename or vim.api.nvim_buf_get_name(ctx.buf)
+        local start = vim.fs.dirname(bufname)
+
+        local local_bin = find_local_node_bin(start, "rescript")
+        if local_bin then
+          return local_bin
+        end
+
+        local global_bin = vim.fn.exepath("rescript")
+        if global_bin ~= "" then
+          return global_bin
+        end
+
+        return "rescript"
       end
 
       return {
@@ -43,12 +64,16 @@ return {
           typescriptreact = { "oxfmt" },
           json = { "oxfmt" },
           jsonc = { "oxfmt" },
+          rescript = { "rescript-format" },
           vue = { "oxfmt" },
         },
         formatters = {
           oxfmt = {
             command = local_oxfmt,
             cwd = util.root_file({ "package.json", ".git" }),
+          },
+          ["rescript-format"] = {
+            command = local_rescript,
           },
         },
       }

@@ -10,6 +10,7 @@ return {
         "json",
         "markdown",
         "markdown_inline",
+        "rescript",
         "tsx",
         "typescript",
       },
