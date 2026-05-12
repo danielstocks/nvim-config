@@ -28,7 +28,8 @@ require("lazy").setup({
     { import = "plugins" },
   },
   -- Configure any other settings here. See the documentation for more details.
-  -- colorscheme that will be used when installing plugins.
+  -- Bootstrap fallback only: try tokyonight first, then use built-in habamax
+  -- while plugins are still being installed. The active theme is set elsewhere.
   install = { colorscheme = { "tokyonight-moon", "habamax" } },
   -- automatically check for plugin updates
   checker = { enabled = true, notify = false },
