@@ -1,6 +1,6 @@
 return {
   {
-    "folke/tokyonight.nvim",
+    "ellisonleao/gruvbox.nvim",
     lazy = false,
     priority = 1000,
     config = function()
@@ -14,19 +14,19 @@ return {
       end
 
       local function apply_colorscheme()
-        local style = is_macos_dark_mode() and "moon" or "day"
+        local background = is_macos_dark_mode() and "dark" or "light"
 
-        if vim.g.tokyonight_style == style then
+        if vim.o.background == background and vim.g.colors_name == "gruvbox" then
           return
         end
 
-        vim.g.tokyonight_style = style
+        vim.o.background = background
 
-        require("tokyonight").setup({
-          style = style,
+        require("gruvbox").setup({
+          contrast = "hard",
         })
 
-        vim.cmd.colorscheme("tokyonight")
+        vim.cmd.colorscheme("gruvbox")
       end
 
       apply_colorscheme()

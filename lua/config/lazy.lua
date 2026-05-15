@@ -28,9 +28,9 @@ require("lazy").setup({
     { import = "plugins" },
   },
   -- Configure any other settings here. See the documentation for more details.
-  -- Bootstrap fallback only: try tokyonight first, then use built-in habamax
+  -- Bootstrap fallback only: try gruvbox first, then use built-in habamax
   -- while plugins are still being installed. The active theme is set elsewhere.
-  install = { colorscheme = { "tokyonight-moon", "habamax" } },
+  install = { colorscheme = { "gruvbox", "habamax" } },
   -- automatically check for plugin updates
   checker = { enabled = true, notify = false },
 })
